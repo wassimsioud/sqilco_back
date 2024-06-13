@@ -1,20 +1,22 @@
 const Blog = require('../models/BlogModel')
-const HTML = require('../models/htmlModel')
+const BlogContentModel = require('../models/BlogContentModel')
 
 module.exports = {
     createBlog : async(req, res)=>{
         try{
-            let {title, category, description, content, keywords, Author} = req.body;
-            const htmlContent = new HTML({content});
+            let {title, category, description, contentRef, keywords, author, readTime} = req.body;
+            // let content = contentRef;
+            const htmlContent = new BlogContentModel({content: contentRef});
             await htmlContent.save();
-            content = htmlContent._id
-              const newBlog = new Blog({
+            contentRef = htmlContent._id
+              const newBlog = new BlogContentModel({
                 title,
                 category,
                 description,
-                content,
+                contentRef,
                 keywords,
-                Author
+                author, 
+                readTime
             })
   
             await newBlog.save();
@@ -39,13 +41,44 @@ module.exports = {
     getOneBlog : async(req, res)=>{
         try{
             const id = req.params['id']
-        
             const blog = await Blog.findById(id);
             res.send(blog);
         }
         catch(error){
             console.log('Error getting blog data')
-            res.status(500).json({message:''})
+            res.status(500).json({message:'error getting blogs data'})
         }
+    },
+    updateBlog : async(req, res)=>{
+        try{
+            let {title, category, description, contentRef, keywords, author, readTime} = req.body;
+            const id = req.params['id'];
+            
+            const updatedblog = await Blog.findByIdAndUpdate(id, {
+                title, category, description, keywords, author, readTime
+            })
+
+            const htmlId = updatedblog.contentRef;
+            const updatedHtml = await BlogContentModel.findByIdAndUpdate(htmlId, {contentRef})
+
+            res.status(200).json({message: 'Blog updated successufully'})
+
+        }catch(error){
+            res.status(500).json({message:'error updating data'})
+        }
+
+    },
+    deleteBlog : async(req, res)=>{
+        try{
+            const id = req.params['id'];
+            const deletedblog = await Blog.findByIdAndDelete(id)
+            const contentid = deletedblog.contentRef;
+            const htmldelete = await BlogContentModel.findByIdAndDelete(contentid);
+            console.log(contentid)
+            res.status(200).json({deletedblog, htmldelete})
+        }catch(error){
+            res.status(500).json({message: 'Error deleting blog'})
+        }
+
     }
 }

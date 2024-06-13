@@ -1,4 +1,4 @@
-const HTML = require('../models/htmlModel')
+const HTML = require('../models/BlogContentModel')
 
 
 module.exports = {
