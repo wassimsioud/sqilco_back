@@ -5,11 +5,11 @@ module.exports = {
     createBlog : async(req, res)=>{
         try{
             let {title, category, description, contentRef, keywords, author, readTime} = req.body;
-            // let content = contentRef;
+
             const htmlContent = new BlogContentModel({content: contentRef});
             await htmlContent.save();
             contentRef = htmlContent._id
-              const newBlog = new BlogContentModel({
+              const newBlog = new Blog({
                 title,
                 category,
                 description,
@@ -59,7 +59,7 @@ module.exports = {
             })
 
             const htmlId = updatedblog.contentRef;
-            const updatedHtml = await BlogContentModel.findByIdAndUpdate(htmlId, {contentRef})
+            const updatedHtml = await BlogContentModel.findByIdAndUpdate(htmlId, {content : contentRef})
 
             res.status(200).json({message: 'Blog updated successufully'})
 
